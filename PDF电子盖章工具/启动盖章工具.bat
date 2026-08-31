@@ -36,11 +36,19 @@ if errorlevel 1 (
     )
 )
 
-rem ---- 3. 启动（pythonw 无黑框）----
-if exist "%PY%\..\pythonw.exe" (
-    start "" "%PY%\..\pythonw.exe" "%~dp0pdf_stamp.py"
+rem ---- 3. 找 pythonw（无黑框启动）----
+set "PYW="
+if exist "portable_python\pythonw.exe" set "PYW=%CD%\portable_python\pythonw.exe"
+if exist "python\pythonw.exe" set "PYW=%CD%\python\pythonw.exe"
+if not defined PYW (
+    where pythonw >"%TEMP%\_pyw_path.txt" 2>nul
+    set /p PYW=<"%TEMP%\_pyw_path.txt"
+    del "%TEMP%\_pyw_path.txt" 2>nul
+)
+if defined PYW (
+    start "" "%PYW%" "%~dp0pdf_stamp.py"
 ) else (
-    start "" pythonw "%~dp0pdf_stamp.py" 2>nul
-    if errorlevel 1 start "" "%PY%" "%~dp0pdf_stamp.py"
+    echo [提示] 未找到 pythonw，改用 python 启动（会显示控制台窗口）。
+    start "" "%PY%" "%~dp0pdf_stamp.py"
 )
 endlocal
